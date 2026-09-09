@@ -43,6 +43,15 @@ export default async function ShopPage({ params, searchParams }) {
     WHERE page_id = ${currentPage.id} ORDER BY position ASC
   `;
 
+  const messages = await sql`
+    SELECT id, name, email, message, created_at FROM messages
+    WHERE shop_id = ${shop.id} ORDER BY created_at DESC LIMIT 20
+  `;
+  const subscribers = await sql`
+    SELECT id, email, created_at FROM subscribers
+    WHERE shop_id = ${shop.id} ORDER BY created_at DESC LIMIT 20
+  `;
+
   return (
     <>
       <div className="dashboard-header">
@@ -64,6 +73,7 @@ export default async function ShopPage({ params, searchParams }) {
         key={currentPage.id}
         pageId={currentPage.id}
         initialBlocks={blocks}
+        shopId={shop.id}
         shopName={shop.name}
         shopTagline={shop.tagline}
         shopSlug={shop.slug}
@@ -84,6 +94,41 @@ export default async function ShopPage({ params, searchParams }) {
           </div>
         </>
       )}
+
+      <h2 style={{ marginTop: 48 }}>Posteingang</h2>
+      <div className="inbox-grid">
+        <div>
+          <h3>Kontaktanfragen ({messages.length})</h3>
+          {messages.length === 0 ? (
+            <div className="empty-state">Noch keine Nachrichten.</div>
+          ) : (
+            <div className="product-list">
+              {messages.map((m) => (
+                <div key={m.id} className="product-row" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                  <strong>
+                    {m.name} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>&lt;{m.email}&gt;</span>
+                  </strong>
+                  <p style={{ margin: '4px 0 0', color: 'var(--text-muted)' }}>{m.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div>
+          <h3>Newsletter-Abonnenten ({subscribers.length})</h3>
+          {subscribers.length === 0 ? (
+            <div className="empty-state">Noch keine Abonnenten.</div>
+          ) : (
+            <div className="product-list">
+              {subscribers.map((s) => (
+                <div key={s.id} className="product-row">
+                  <span>{s.email}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </>
   );
 }

@@ -42,6 +42,7 @@ export default async function StorefrontSubPage({ params }) {
 
   return (
     <StorefrontBody
+      shopId={shop.id}
       shopName={shop.name}
       tagline={shop.tagline}
       shopSlug={slug}

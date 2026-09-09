@@ -13,6 +13,11 @@ const TYPE_ICON = {
   button: '🔘',
   gallery: '🖼️',
   features: '▦',
+  testimonials: '💬',
+  faq: '❓',
+  social: '🔗',
+  contact: '✉️',
+  newsletter: '📬',
   products: '🛍️',
 };
 
@@ -176,10 +181,129 @@ function BlockFields({ type, content, onChange }) {
       </div>
     );
   }
+  if (type === 'testimonials') {
+    const items = content.items || [];
+    return (
+      <div className="field">
+        <label>Stimmen</label>
+        <RepeatEditor
+          items={items}
+          onChange={(items) => onChange({ items })}
+          addLabel="+ Stimme hinzufügen"
+          emptyItem={{ quote: '', author: '', role: '' }}
+          max={12}
+          renderFields={(item, update) => (
+            <>
+              <div className="field">
+                <label>Zitat</label>
+                <textarea value={item.quote || ''} onChange={(e) => update({ ...item, quote: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Name</label>
+                <input value={item.author || ''} onChange={(e) => update({ ...item, author: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Rolle / Firma (optional)</label>
+                <input value={item.role || ''} onChange={(e) => update({ ...item, role: e.target.value })} />
+              </div>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
+  if (type === 'faq') {
+    const items = content.items || [];
+    return (
+      <div className="field">
+        <label>Fragen</label>
+        <RepeatEditor
+          items={items}
+          onChange={(items) => onChange({ items })}
+          addLabel="+ Frage hinzufügen"
+          emptyItem={{ question: '', answer: '' }}
+          max={20}
+          renderFields={(item, update) => (
+            <>
+              <div className="field">
+                <label>Frage</label>
+                <input value={item.question || ''} onChange={(e) => update({ ...item, question: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Antwort</label>
+                <textarea value={item.answer || ''} onChange={(e) => update({ ...item, answer: e.target.value })} />
+              </div>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
+  if (type === 'social') {
+    const links = content.links || [];
+    return (
+      <div className="field">
+        <label>Links</label>
+        <RepeatEditor
+          items={links}
+          onChange={(links) => onChange({ links })}
+          addLabel="+ Link hinzufügen"
+          emptyItem={{ platform: '', url: '' }}
+          max={10}
+          renderFields={(link, update) => (
+            <>
+              <div className="field">
+                <label>Plattform (z. B. Instagram)</label>
+                <input value={link.platform || ''} onChange={(e) => update({ ...link, platform: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Link (URL)</label>
+                <input value={link.url || ''} onChange={(e) => update({ ...link, url: e.target.value })} />
+              </div>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
+  if (type === 'contact') {
+    return (
+      <>
+        <div className="field">
+          <label>Überschrift</label>
+          <input value={content.heading || ''} onChange={(e) => onChange({ ...content, heading: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Text</label>
+          <input value={content.buttonLabel || ''} onChange={(e) => onChange({ ...content, buttonLabel: e.target.value })} />
+        </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '.82rem' }}>
+          Name, E-Mail und Nachricht sind fest vorgegeben. Eingesendete Nachrichten findest du weiter unten im „Posteingang“.
+        </p>
+      </>
+    );
+  }
+  if (type === 'newsletter') {
+    return (
+      <>
+        <div className="field">
+          <label>Überschrift</label>
+          <input value={content.heading || ''} onChange={(e) => onChange({ ...content, heading: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Text</label>
+          <input value={content.buttonLabel || ''} onChange={(e) => onChange({ ...content, buttonLabel: e.target.value })} />
+        </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '.82rem' }}>
+          Angemeldete E-Mails findest du weiter unten im „Posteingang“.
+        </p>
+      </>
+    );
+  }
   return <p style={{ color: 'var(--text-muted)' }}>Zeigt die Produktübersicht deines Shops. Keine Einstellungen nötig.</p>;
 }
 
-export default function BlockEditor({ pageId, initialBlocks, shopName, shopTagline, shopSlug, pages, currentPageId, products, projectType }) {
+export default function BlockEditor({ pageId, initialBlocks, shopId, shopName, shopTagline, shopSlug, pages, currentPageId, products, projectType }) {
   const router = useRouter();
   const [blocks, setBlocks] = useState(initialBlocks);
   const [selectedId, setSelectedId] = useState(initialBlocks[0]?.id ?? null);
@@ -349,6 +473,7 @@ export default function BlockEditor({ pageId, initialBlocks, shopName, shopTagli
         <div className={device === 'mobile' ? 'preview-frame is-mobile' : 'preview-frame'}>
           <div className="preview-scroll">
             <StorefrontBody
+              shopId={shopId}
               shopName={shopName}
               tagline={shopTagline}
               shopSlug={shopSlug}

@@ -14,9 +14,13 @@ Website-Baukasten.
   Unterseiten (eigene URL, eigene Blöcke), mit automatischer Navigation
   auf der Storefront sobald mehr als eine Seite existiert
 - Shopify-artiger Seiten-Editor (Werkzeugleiste, Block-Liste, Live-Vorschau
-  mit Desktop/Mobile-Umschalter, Eigenschaften-Panel) mit 8 Blocktypen:
+  mit Desktop/Mobile-Umschalter, Eigenschaften-Panel) mit 13 Blocktypen:
   Überschrift, Text, Bild, Hero-Bereich, Button/CTA, Bildergalerie,
-  Feature-Grid, Produktübersicht (nur für Shops)
+  Feature-Grid, Testimonials, FAQ, Social-Media-Links, Kontaktformular,
+  Newsletter-Anmeldung, Produktübersicht (nur für Shops)
+- Kontaktformular- und Newsletter-Block sind echt: Einsendungen landen in
+  der Datenbank und erscheinen im „Posteingang" auf der Projektseite im
+  Dashboard
 - Produkte pro Shop verwalten (anlegen, auflisten, löschen)
 - Öffentliche Storefront unter `/s/<slug>` (und `/s/<slug>/<seite>` für
   Unterseiten) für jedes Projekt
@@ -24,7 +28,6 @@ Website-Baukasten.
 
 ## Noch nicht enthalten (nächste Schritte)
 
-- Weitere Blocktypen (Testimonials, FAQ, Kontaktformular, Newsletter, Social Links …)
 - Echtes Drag-&-Drop im Seiteneditor (aktuell ↑/↓-Buttons) / Themes
 - Bestellungen & Warenkorb, Zahlungsabwicklung (z. B. Stripe)
 - Eigene Domains / Subdomains pro Projekt
@@ -38,8 +41,9 @@ Website-Baukasten.
    - `DATABASE_URL` – Postgres-Connection-String (z. B. von [Neon](https://neon.tech))
    - `JWT_SECRET` – langer, zufälliger String
 2. Datenbankschema anlegen: Inhalt von `schema.sql` gegen die Datenbank ausführen.
-   Bei einer bereits bestehenden Datenbank mit dem alten (Single-Page-)Schema
-   stattdessen `migrations/0001_pages_and_project_type.sql` ausführen.
+   Bei einer bereits bestehenden Datenbank die Dateien in `migrations/`
+   der Reihe nach ausführen (0001 für Single-Page → Mehrseiten-Umstellung,
+   0002 für Kontaktformular/Newsletter-Speicherung).
 3. Abhängigkeiten installieren: `npm install`
 4. Dev-Server starten: `npm run dev`
 

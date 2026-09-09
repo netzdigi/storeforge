@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import ContactFormBlock from './ContactFormBlock';
+import NewsletterBlock from './NewsletterBlock';
 
 export function formatPrice(cents) {
   return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
@@ -24,7 +26,7 @@ export function ProductGrid({ products }) {
   );
 }
 
-export function StoreBlock({ block, products }) {
+export function StoreBlock({ block, products, shopId }) {
   if (block.type === 'heading') {
     return (
       <div className="container block-section">
@@ -103,6 +105,62 @@ export function StoreBlock({ block, products }) {
       </div>
     );
   }
+  if (block.type === 'testimonials') {
+    const items = block.content.items || [];
+    if (items.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="testimonial-grid">
+          {items.map((item, i) => (
+            <figure key={i} className="testimonial-card">
+              <blockquote>&ldquo;{item.quote}&rdquo;</blockquote>
+              <figcaption>
+                <strong>{item.author}</strong>
+                {item.role && <span> — {item.role}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (block.type === 'faq') {
+    const items = block.content.items || [];
+    if (items.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="faq-list">
+          {items.map((item, i) => (
+            <details key={i} className="faq-item">
+              <summary>{item.question}</summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (block.type === 'social') {
+    const links = (block.content.links || []).filter((l) => l.platform && l.url);
+    if (links.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="social-links">
+          {links.map((link, i) => (
+            <a key={i} href={link.url} className="social-link" target="_blank" rel="noopener noreferrer">
+              {link.platform}
+            </a>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (block.type === 'contact') {
+    return <ContactFormBlock shopId={shopId} heading={block.content.heading} buttonLabel={block.content.buttonLabel} />;
+  }
+  if (block.type === 'newsletter') {
+    return <NewsletterBlock shopId={shopId} heading={block.content.heading} buttonLabel={block.content.buttonLabel} />;
+  }
   if (block.type === 'products') {
     return (
       <div className="container">
@@ -130,7 +188,7 @@ export function StorefrontNav({ shopSlug, pages, currentPageId }) {
   );
 }
 
-export function StorefrontBody({ shopName, tagline, shopSlug, pages, currentPageId, blocks, products }) {
+export function StorefrontBody({ shopId, shopName, tagline, shopSlug, pages, currentPageId, blocks, products }) {
   return (
     <>
       <div className="storefront-header container">
@@ -145,7 +203,7 @@ export function StorefrontBody({ shopName, tagline, shopSlug, pages, currentPage
           <ProductGrid products={products} />
         </div>
       ) : (
-        blocks.map((block) => <StoreBlock key={block.id} block={block} products={products} />)
+        blocks.map((block) => <StoreBlock key={block.id} block={block} products={products} shopId={shopId} />)
       )}
 
       <footer className="footer">Powered by Storeforge</footer>
