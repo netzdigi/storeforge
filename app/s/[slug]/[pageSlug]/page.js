@@ -3,21 +3,25 @@ import { sql } from '@/lib/db';
 import { StorefrontBody } from '@/components/StoreBlocks';
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const [shop] = await sql`SELECT name, tagline FROM shops WHERE slug = ${slug}`;
-  if (!shop) return {};
-  return { title: `${shop.name} – Storeforge`, description: shop.tagline || undefined };
+  const { slug, pageSlug } = await params;
+  const [row] = await sql`
+    SELECT shops.name AS shop_name, pages.title AS page_title
+    FROM pages JOIN shops ON shops.id = pages.shop_id
+    WHERE shops.slug = ${slug} AND pages.slug = ${pageSlug}
+  `;
+  if (!row) return {};
+  return { title: `${row.page_title} – ${row.shop_name}` };
 }
 
-export default async function StorefrontHomePage({ params }) {
-  const { slug } = await params;
+export default async function StorefrontSubPage({ params }) {
+  const { slug, pageSlug } = await params;
   const [shop] = await sql`SELECT id, name, tagline, type FROM shops WHERE slug = ${slug}`;
   if (!shop) notFound();
 
-  const [homePage] = await sql`
-    SELECT id FROM pages WHERE shop_id = ${shop.id} AND is_home = true
+  const [page] = await sql`
+    SELECT id FROM pages WHERE shop_id = ${shop.id} AND slug = ${pageSlug} AND is_home = false
   `;
-  if (!homePage) notFound();
+  if (!page) notFound();
 
   const [products, blocks, pages] = await Promise.all([
     shop.type === 'shop'
@@ -28,7 +32,7 @@ export default async function StorefrontHomePage({ params }) {
       : Promise.resolve([]),
     sql`
       SELECT id, type, content FROM blocks
-      WHERE page_id = ${homePage.id} ORDER BY position ASC
+      WHERE page_id = ${page.id} ORDER BY position ASC
     `,
     sql`
       SELECT id, title, slug, is_home FROM pages
@@ -42,7 +46,7 @@ export default async function StorefrontHomePage({ params }) {
       tagline={shop.tagline}
       shopSlug={slug}
       pages={pages}
-      currentPageId={homePage.id}
+      currentPageId={page.id}
       blocks={blocks}
       products={products}
     />

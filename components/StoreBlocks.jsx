@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function formatPrice(cents) {
   return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 }
@@ -50,6 +52,57 @@ export function StoreBlock({ block, products }) {
       </div>
     );
   }
+  if (block.type === 'hero') {
+    const { heading, subtext, imageUrl, buttonLabel, buttonUrl } = block.content;
+    return (
+      <div className="container block-section hero-block">
+        {imageUrl && <img src={imageUrl} alt="" className="hero-image" />}
+        {heading && <h2>{heading}</h2>}
+        {subtext && <p>{subtext}</p>}
+        {buttonLabel && buttonUrl && (
+          <a href={buttonUrl} className="btn btn-primary">{buttonLabel}</a>
+        )}
+      </div>
+    );
+  }
+  if (block.type === 'button') {
+    if (!block.content.label || !block.content.url) return null;
+    return (
+      <div className="container block-section" style={{ textAlign: 'center' }}>
+        <a href={block.content.url} className="btn btn-primary">{block.content.label}</a>
+      </div>
+    );
+  }
+  if (block.type === 'gallery') {
+    const images = block.content.images || [];
+    if (images.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="gallery-grid">
+          {images.map((img, i) => (
+            <img key={i} src={img.url} alt={img.alt || ''} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (block.type === 'features') {
+    const items = block.content.items || [];
+    if (items.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="features-grid">
+          {items.map((item, i) => (
+            <div key={i} className="feature-item">
+              {item.icon && <div className="feature-icon">{item.icon}</div>}
+              <h3>{item.title}</h3>
+              {item.text && <p>{item.text}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (block.type === 'products') {
     return (
       <div className="container">
@@ -60,13 +113,32 @@ export function StoreBlock({ block, products }) {
   return null;
 }
 
-export function StorefrontBody({ shopName, tagline, blocks, products }) {
+export function StorefrontNav({ shopSlug, pages, currentPageId }) {
+  if (!pages || pages.length <= 1) return null;
+  return (
+    <nav className="storefront-nav container">
+      {pages.map((page) => (
+        <Link
+          key={page.id}
+          href={page.is_home ? `/s/${shopSlug}` : `/s/${shopSlug}/${page.slug}`}
+          className={page.id === currentPageId ? 'storefront-nav-link active' : 'storefront-nav-link'}
+        >
+          {page.title}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+export function StorefrontBody({ shopName, tagline, shopSlug, pages, currentPageId, blocks, products }) {
   return (
     <>
       <div className="storefront-header container">
         <h1>{shopName}</h1>
         {tagline && <p>{tagline}</p>}
       </div>
+
+      <StorefrontNav shopSlug={shopSlug} pages={pages} currentPageId={currentPageId} />
 
       {blocks.length === 0 ? (
         <div className="container">

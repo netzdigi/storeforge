@@ -9,11 +9,42 @@ const TYPE_ICON = {
   heading: '🔠',
   text: '📄',
   image: '🖼️',
+  hero: '🎯',
+  button: '🔘',
+  gallery: '🖼️',
+  features: '▦',
   products: '🛍️',
 };
 
 function blockLabel(type) {
   return BLOCK_TYPES.find((b) => b.type === type)?.label || type;
+}
+
+function RepeatEditor({ items, onChange, addLabel, renderFields, emptyItem, max }) {
+  function updateItem(index, next) {
+    const copy = [...items];
+    copy[index] = next;
+    onChange(copy);
+  }
+  function removeItem(index) {
+    onChange(items.filter((_, i) => i !== index));
+  }
+  function addItem() {
+    onChange([...items, emptyItem]);
+  }
+  return (
+    <div>
+      {items.map((item, index) => (
+        <div key={index} className="repeat-item">
+          <button type="button" className="repeat-remove" onClick={() => removeItem(index)}>✕</button>
+          {renderFields(item, (next) => updateItem(index, next))}
+        </div>
+      ))}
+      {items.length < max && (
+        <button type="button" className="repeat-add" onClick={addItem}>{addLabel}</button>
+      )}
+    </div>
+  );
 }
 
 function BlockFields({ type, content, onChange }) {
@@ -47,16 +78,118 @@ function BlockFields({ type, content, onChange }) {
       </>
     );
   }
+  if (type === 'hero') {
+    return (
+      <>
+        <div className="field">
+          <label>Überschrift</label>
+          <input value={content.heading || ''} onChange={(e) => onChange({ ...content, heading: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Untertext</label>
+          <textarea value={content.subtext || ''} onChange={(e) => onChange({ ...content, subtext: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Bild-URL (optional)</label>
+          <input value={content.imageUrl || ''} onChange={(e) => onChange({ ...content, imageUrl: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Text (optional)</label>
+          <input value={content.buttonLabel || ''} onChange={(e) => onChange({ ...content, buttonLabel: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Link (optional)</label>
+          <input value={content.buttonUrl || ''} onChange={(e) => onChange({ ...content, buttonUrl: e.target.value })} />
+        </div>
+      </>
+    );
+  }
+  if (type === 'button') {
+    return (
+      <>
+        <div className="field">
+          <label>Button-Text</label>
+          <input value={content.label || ''} onChange={(e) => onChange({ ...content, label: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Link (URL)</label>
+          <input value={content.url || ''} onChange={(e) => onChange({ ...content, url: e.target.value })} />
+        </div>
+      </>
+    );
+  }
+  if (type === 'gallery') {
+    const images = content.images || [];
+    return (
+      <div className="field">
+        <label>Bilder</label>
+        <RepeatEditor
+          items={images}
+          onChange={(images) => onChange({ images })}
+          addLabel="+ Bild hinzufügen"
+          emptyItem={{ url: '', alt: '' }}
+          max={20}
+          renderFields={(img, update) => (
+            <>
+              <div className="field">
+                <label>Bild-URL</label>
+                <input value={img.url || ''} onChange={(e) => update({ ...img, url: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Alt-Text</label>
+                <input value={img.alt || ''} onChange={(e) => update({ ...img, alt: e.target.value })} />
+              </div>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
+  if (type === 'features') {
+    const items = content.items || [];
+    return (
+      <div className="field">
+        <label>Merkmale</label>
+        <RepeatEditor
+          items={items}
+          onChange={(items) => onChange({ items })}
+          addLabel="+ Merkmal hinzufügen"
+          emptyItem={{ icon: '', title: '', text: '' }}
+          max={12}
+          renderFields={(item, update) => (
+            <>
+              <div className="field">
+                <label>Icon (Emoji, optional)</label>
+                <input value={item.icon || ''} onChange={(e) => update({ ...item, icon: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Titel</label>
+                <input value={item.title || ''} onChange={(e) => update({ ...item, title: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Text</label>
+                <textarea value={item.text || ''} onChange={(e) => update({ ...item, text: e.target.value })} />
+              </div>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
   return <p style={{ color: 'var(--text-muted)' }}>Zeigt die Produktübersicht deines Shops. Keine Einstellungen nötig.</p>;
 }
 
-export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagline, products }) {
+export default function BlockEditor({ pageId, initialBlocks, shopName, shopTagline, shopSlug, pages, currentPageId, products, projectType }) {
   const router = useRouter();
   const [blocks, setBlocks] = useState(initialBlocks);
   const [selectedId, setSelectedId] = useState(initialBlocks[0]?.id ?? null);
   const [draftContent, setDraftContent] = useState(initialBlocks[0]?.content ?? {});
   const [adding, setAdding] = useState(false);
-  const [newType, setNewType] = useState('heading');
+  const availableTypes = useMemo(
+    () => BLOCK_TYPES.filter((bt) => !bt.shopOnly || projectType === 'shop'),
+    [projectType]
+  );
+  const [newType, setNewType] = useState(availableTypes[0]?.type ?? 'heading');
   const [newContent, setNewContent] = useState({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -79,14 +212,14 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
   function startAdd() {
     setAdding(true);
     setSelectedId(null);
-    setNewType('heading');
+    setNewType(availableTypes[0]?.type ?? 'heading');
     setNewContent({});
     setError('');
   }
 
   async function reorder(nextBlocks) {
     setBlocks(nextBlocks);
-    await fetch(`/api/shops/${shopId}/blocks/reorder`, {
+    await fetch(`/api/pages/${pageId}/blocks/reorder`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ order: nextBlocks.map((b) => b.id) }),
@@ -106,7 +239,7 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
     setBusy(true);
     setError('');
     try {
-      const res = await fetch(`/api/shops/${shopId}/blocks/${blockId}`, {
+      const res = await fetch(`/api/pages/${pageId}/blocks/${blockId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: draftContent }),
@@ -126,7 +259,7 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
   async function deleteBlock(blockId) {
     setBusy(true);
     try {
-      const res = await fetch(`/api/shops/${shopId}/blocks/${blockId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/pages/${pageId}/blocks/${blockId}`, { method: 'DELETE' });
       if (res.ok) {
         setBlocks((prev) => prev.filter((b) => b.id !== blockId));
         if (selectedId === blockId) setSelectedId(null);
@@ -142,7 +275,7 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
     setError('');
     setBusy(true);
     try {
-      const res = await fetch(`/api/shops/${shopId}/blocks`, {
+      const res = await fetch(`/api/pages/${pageId}/blocks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: newType, content: newContent }),
@@ -190,7 +323,7 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
       <div className="builder-tree">
         {blocks.length === 0 && (
           <p style={{ color: 'var(--text-muted)', fontSize: '.85rem', padding: '4px 6px 12px' }}>
-            Noch keine Blöcke. Ohne eigene Blöcke zeigt deine Storefront automatisch die Produktübersicht.
+            Noch keine Blöcke. Ohne eigene Blöcke zeigt diese Seite automatisch die Produktübersicht.
           </p>
         )}
         {blocks.map((block, index) => (
@@ -215,7 +348,15 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
       <div className="builder-center">
         <div className={device === 'mobile' ? 'preview-frame is-mobile' : 'preview-frame'}>
           <div className="preview-scroll">
-            <StorefrontBody shopName={shopName} tagline={shopTagline} blocks={previewBlocks} products={products} />
+            <StorefrontBody
+              shopName={shopName}
+              tagline={shopTagline}
+              shopSlug={shopSlug}
+              pages={pages}
+              currentPageId={currentPageId}
+              blocks={previewBlocks}
+              products={products}
+            />
           </div>
         </div>
       </div>
@@ -236,7 +377,7 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
                     setNewContent({});
                   }}
                 >
-                  {BLOCK_TYPES.map((bt) => (
+                  {availableTypes.map((bt) => (
                     <option key={bt.type} value={bt.type}>{bt.label}</option>
                   ))}
                 </select>
