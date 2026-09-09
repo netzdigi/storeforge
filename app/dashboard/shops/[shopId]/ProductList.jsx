@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 function formatPrice(cents) {
@@ -11,6 +11,10 @@ export default function ProductList({ shopId, initialProducts }) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [deletingId, setDeletingId] = useState(null);
+
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
   async function handleDelete(productId) {
     setDeletingId(productId);

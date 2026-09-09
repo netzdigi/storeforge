@@ -22,13 +22,13 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Anmeldung fehlgeschlagen.');
+        setError(data.error || 'Входът беше неуспешен.');
         return;
       }
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Netzwerkfehler. Bitte versuche es erneut.');
+      setError('Мрежова грешка. Моля, опитай отново.');
     } finally {
       setLoading(false);
     }
@@ -37,11 +37,11 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Anmelden</h1>
+        <h1>Вход</h1>
         {error && <div className="form-error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="email">E-Mail</label>
+            <label htmlFor="email">Имейл</label>
             <input
               id="email"
               type="email"
@@ -51,7 +51,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="password">Passwort</label>
+            <label htmlFor="password">Парола</label>
             <input
               id="password"
               type="password"
@@ -61,11 +61,11 @@ export default function LoginPage() {
             />
           </div>
           <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Wird angemeldet…' : 'Anmelden'}
+            {loading ? 'Влизане…' : 'Вход'}
           </button>
         </form>
         <p className="auth-switch">
-          Noch kein Account? <Link href="/register">Jetzt registrieren</Link>
+          Нямаш акаунт? <Link href="/register">Регистрирай се</Link>
         </p>
       </div>
     </div>

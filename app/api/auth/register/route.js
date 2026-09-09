@@ -8,7 +8,7 @@ export async function POST(request) {
 
   if (!email || !password || password.length < 8) {
     return NextResponse.json(
-      { error: 'E-Mail und ein Passwort mit mindestens 8 Zeichen sind erforderlich.' },
+      { error: 'Имейл и парола с поне 8 символа са задължителни.' },
       { status: 400 }
     );
   }
@@ -17,7 +17,7 @@ export async function POST(request) {
 
   const existing = await sql`SELECT id FROM users WHERE email = ${normalizedEmail}`;
   if (existing.length > 0) {
-    return NextResponse.json({ error: 'Diese E-Mail ist bereits registriert.' }, { status: 409 });
+    return NextResponse.json({ error: 'Този имейл вече е регистриран.' }, { status: 409 });
   }
 
   const passwordHash = await hashPassword(password);

@@ -1,14 +1,14 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Storeforge – Baue deinen eigenen Online-Shop',
+  title: 'Storeforge – Създай своя онлайн магазин',
   description:
-    'Registriere dich und erstelle in Minuten deinen eigenen Online-Shop oder deine Website.',
+    'Регистрирай се и създай за минути своя собствен онлайн магазин или уебсайт.',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="de">
+    <html lang="bg">
       <body>{children}</body>
     </html>
   );

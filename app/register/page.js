@@ -22,13 +22,13 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Registrierung fehlgeschlagen.');
+        setError(data.error || 'Регистрацията беше неуспешна.');
         return;
       }
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Netzwerkfehler. Bitte versuche es erneut.');
+      setError('Мрежова грешка. Моля, опитай отново.');
     } finally {
       setLoading(false);
     }
@@ -37,11 +37,11 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Konto erstellen</h1>
+        <h1>Създай акаунт</h1>
         {error && <div className="form-error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="name">Name</label>
+            <label htmlFor="name">Име</label>
             <input
               id="name"
               type="text"
@@ -50,7 +50,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="email">E-Mail</label>
+            <label htmlFor="email">Имейл</label>
             <input
               id="email"
               type="email"
@@ -60,7 +60,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="password">Passwort</label>
+            <label htmlFor="password">Парола</label>
             <input
               id="password"
               type="password"
@@ -71,11 +71,11 @@ export default function RegisterPage() {
             />
           </div>
           <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Wird erstellt…' : 'Registrieren'}
+            {loading ? 'Създаване…' : 'Регистрация'}
           </button>
         </form>
         <p className="auth-switch">
-          Schon registriert? <Link href="/login">Anmelden</Link>
+          Вече имаш акаунт? <Link href="/login">Влез</Link>
         </p>
       </div>
     </div>

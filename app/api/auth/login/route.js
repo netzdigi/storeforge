@@ -7,14 +7,14 @@ export async function POST(request) {
   const { email, password } = await request.json();
 
   if (!email || !password) {
-    return NextResponse.json({ error: 'E-Mail und Passwort sind erforderlich.' }, { status: 400 });
+    return NextResponse.json({ error: 'Имейл и парола са задължителни.' }, { status: 400 });
   }
 
   const normalizedEmail = String(email).trim().toLowerCase();
 
   const [user] = await sql`SELECT id, password_hash FROM users WHERE email = ${normalizedEmail}`;
   if (!user || !(await verifyPassword(password, user.password_hash))) {
-    return NextResponse.json({ error: 'E-Mail oder Passwort ist falsch.' }, { status: 401 });
+    return NextResponse.json({ error: 'Грешен имейл или парола.' }, { status: 401 });
   }
 
   const token = await createSessionToken(user.id);
