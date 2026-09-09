@@ -39,7 +39,13 @@ export default async function ShopPage({ params }) {
       </div>
 
       <h2>Seite gestalten</h2>
-      <BlockEditor shopId={shop.id} initialBlocks={blocks} />
+      <BlockEditor
+        shopId={shop.id}
+        initialBlocks={blocks}
+        shopName={shop.name}
+        shopTagline={shop.tagline}
+        products={products}
+      />
 
       <h2 style={{ marginTop: 48 }}>Produkte</h2>
       <ProductList shopId={shop.id} initialProducts={products} />
