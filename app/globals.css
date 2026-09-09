@@ -170,6 +170,104 @@ a {
   color: var(--text-muted);
 }
 
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.field-label-row label {
+  margin-bottom: 0;
+}
+
+.ai-btn {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+.ai-btn:hover {
+  color: var(--accent-hover);
+}
+
+.ai-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ai-btn-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-btn-error {
+  color: var(--danger);
+  font-size: 0.74rem;
+}
+
+.ai-generator {
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+
+.ai-generator label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.ai-generator textarea {
+  width: 100%;
+  min-height: 64px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  margin-bottom: 10px;
+  resize: vertical;
+}
+
+.ai-divider {
+  text-align: center;
+  color: var(--text-faint, var(--text-muted));
+  font-size: 0.76rem;
+  margin: 16px 0;
+  position: relative;
+}
+
+.ai-divider::before,
+.ai-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 60px);
+  height: 1px;
+  background: var(--border);
+}
+
+.ai-divider::before {
+  left: 0;
+}
+
+.ai-divider::after {
+  right: 0;
+}
+
 .field input,
 .field textarea,
 .field select {

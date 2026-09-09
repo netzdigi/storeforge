@@ -57,11 +57,59 @@ function RepeatEditor({ items, onChange, addLabel, renderFields, emptyItem, max 
   );
 }
 
+function ImproveButton({ value, kind, onImproved }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleClick() {
+    if (!value || !value.trim() || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/ai/improve-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: value, kind }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onImproved(data.text);
+      } else {
+        setError(data.error || 'Fehlgeschlagen.');
+      }
+    } catch {
+      setError('Netzwerkfehler.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <span className="ai-btn-wrap">
+      <button type="button" className="ai-btn" onClick={handleClick} disabled={busy} title="Mit KI verbessern">
+        {busy ? '✨ …' : '✨ Verbessern'}
+      </button>
+      {error && <span className="ai-btn-error">{error}</span>}
+    </span>
+  );
+}
+
+function FieldLabel({ children, ai }) {
+  return (
+    <div className="field-label-row">
+      <label>{children}</label>
+      {ai}
+    </div>
+  );
+}
+
 function BlockFields({ type, content, onChange }) {
   if (type === 'heading') {
     return (
       <div className="field">
-        <label>Text</label>
+        <FieldLabel ai={<ImproveButton value={content.text} kind="heading" onImproved={(t) => onChange({ text: t })} />}>
+          Text
+        </FieldLabel>
         <input value={content.text || ''} onChange={(e) => onChange({ text: e.target.value })} />
       </div>
     );
@@ -69,7 +117,9 @@ function BlockFields({ type, content, onChange }) {
   if (type === 'text') {
     return (
       <div className="field">
-        <label>Text</label>
+        <FieldLabel ai={<ImproveButton value={content.text} kind="paragraph" onImproved={(t) => onChange({ text: t })} />}>
+          Text
+        </FieldLabel>
         <textarea value={content.text || ''} onChange={(e) => onChange({ text: e.target.value })} />
       </div>
     );
@@ -92,11 +142,15 @@ function BlockFields({ type, content, onChange }) {
     return (
       <>
         <div className="field">
-          <label>Überschrift</label>
+          <FieldLabel ai={<ImproveButton value={content.heading} kind="heading" onImproved={(t) => onChange({ ...content, heading: t })} />}>
+            Überschrift
+          </FieldLabel>
           <input value={content.heading || ''} onChange={(e) => onChange({ ...content, heading: e.target.value })} />
         </div>
         <div className="field">
-          <label>Untertext</label>
+          <FieldLabel ai={<ImproveButton value={content.subtext} kind="paragraph" onImproved={(t) => onChange({ ...content, subtext: t })} />}>
+            Untertext
+          </FieldLabel>
           <textarea value={content.subtext || ''} onChange={(e) => onChange({ ...content, subtext: e.target.value })} />
         </div>
         <div className="field">
@@ -348,7 +402,9 @@ function BlockFields({ type, content, onChange }) {
           renderFields={(item, update) => (
             <>
               <div className="field">
-                <label>Zitat</label>
+                <FieldLabel ai={<ImproveButton value={item.quote} kind="quote" onImproved={(t) => update({ ...item, quote: t })} />}>
+                  Zitat
+                </FieldLabel>
                 <textarea value={item.quote || ''} onChange={(e) => update({ ...item, quote: e.target.value })} />
               </div>
               <div className="field">
@@ -383,7 +439,9 @@ function BlockFields({ type, content, onChange }) {
                 <input value={item.question || ''} onChange={(e) => update({ ...item, question: e.target.value })} />
               </div>
               <div className="field">
-                <label>Antwort</label>
+                <FieldLabel ai={<ImproveButton value={item.answer} kind="answer" onImproved={(t) => update({ ...item, answer: t })} />}>
+                  Antwort
+                </FieldLabel>
                 <textarea value={item.answer || ''} onChange={(e) => update({ ...item, answer: e.target.value })} />
               </div>
             </>
@@ -454,6 +512,49 @@ function BlockFields({ type, content, onChange }) {
     );
   }
   return <p style={{ color: 'var(--text-muted)' }}>Zeigt die Produktübersicht deines Shops. Keine Einstellungen nötig.</p>;
+}
+
+function AIBlockGenerator({ shopName, shopTagline, projectType, onGenerated }) {
+  const [prompt, setPrompt] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleGenerate() {
+    if (!prompt.trim() || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/ai/generate-block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, shopName, shopTagline, projectType }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Generierung fehlgeschlagen.');
+        return;
+      }
+      onGenerated(data.type, data.content);
+      setPrompt('');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="ai-generator">
+      <label>✨ Mit KI erstellen</label>
+      {error && <div className="form-error">{error}</div>}
+      <textarea
+        placeholder="z. B. „Hero-Bereich für unser neues Sommer-Angebot“"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+      />
+      <button type="button" className="btn" disabled={busy || !prompt.trim()} onClick={handleGenerate}>
+        {busy ? 'Wird generiert…' : 'Generieren'}
+      </button>
+    </div>
+  );
 }
 
 export default function BlockEditor({ pageId, initialBlocks, shopId, shopName, shopTagline, shopSlug, pages, currentPageId, products, projectType }) {
@@ -645,6 +746,16 @@ export default function BlockEditor({ pageId, initialBlocks, shopId, shopName, s
         {adding ? (
           <>
             <h3 style={{ marginTop: 0 }}>Block hinzufügen</h3>
+            <AIBlockGenerator
+              shopName={shopName}
+              shopTagline={shopTagline}
+              projectType={projectType}
+              onGenerated={(type, generatedContent) => {
+                setNewType(type);
+                setNewContent(generatedContent);
+              }}
+            />
+            <div className="ai-divider">oder manuell</div>
             <form onSubmit={addBlock}>
               <div className="field">
                 <label>Typ</label>

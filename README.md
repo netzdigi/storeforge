@@ -23,6 +23,10 @@ Website-Baukasten.
 - Kontaktformular- und Newsletter-Block sind echt: Einsendungen landen in
   der Datenbank und erscheinen im „Posteingang" auf der Projektseite im
   Dashboard
+- KI-Assistent im Seiteneditor (Claude API): "✨ Verbessern" an Text-,
+  Überschrift-, Zitat- und FAQ-Antwort-Feldern, sowie "✨ Mit KI erstellen"
+  beim Hinzufügen eines Blocks (Prompt → passender Blocktyp + Inhalt werden
+  vorausgefüllt, vor dem Speichern noch bearbeitbar). Braucht `ANTHROPIC_API_KEY`.
 - Produkte pro Shop verwalten (anlegen, auflisten, löschen)
 - Öffentliche Storefront unter `/s/<slug>` (und `/s/<slug>/<seite>` für
   Unterseiten) für jedes Projekt
@@ -30,6 +34,7 @@ Website-Baukasten.
 
 ## Noch nicht enthalten (nächste Schritte)
 
+- KI-Bildgenerierung (Anbieter noch offen)
 - Echtes Drag-&-Drop im Seiteneditor (aktuell ↑/↓-Buttons) / Themes
 - Bestellungen & Warenkorb, Zahlungsabwicklung (z. B. Stripe)
 - Eigene Domains / Subdomains pro Projekt
@@ -42,6 +47,8 @@ Website-Baukasten.
 1. `.env.local` aus `.env.example` erstellen und ausfüllen:
    - `DATABASE_URL` – Postgres-Connection-String (z. B. von [Neon](https://neon.tech))
    - `JWT_SECRET` – langer, zufälliger String
+   - `ANTHROPIC_API_KEY` – für den KI-Assistenten im Seiteneditor (optional;
+     ohne den Key zeigen die "✨"-Buttons nur eine Fehlermeldung)
 2. Datenbankschema anlegen: Inhalt von `schema.sql` gegen die Datenbank ausführen.
    Bei einer bereits bestehenden Datenbank die Dateien in `migrations/`
    der Reihe nach ausführen (0001 für Single-Page → Mehrseiten-Umstellung,
