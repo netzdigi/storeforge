@@ -10,13 +10,15 @@ Website-Baukasten.
 - Registrierung & Login (E-Mail/Passwort, sitzungsbasiert per JWT-Cookie)
 - Jeder Nutzer kann beliebig viele Shops anlegen (Name + eindeutige URL-Kennung)
 - Produkte pro Shop verwalten (anlegen, auflisten, löschen)
+- Seiten-Editor: Shop-Startseite aus Blöcken (Überschrift, Text, Bild, Produktübersicht)
+  zusammensetzen, per ↑/↓ neu anordnen, bearbeiten und löschen
 - Öffentliche Storefront unter `/s/<slug>` für jeden Shop
 - Geschütztes Dashboard unter `/dashboard`
 
 ## Noch nicht enthalten (nächste Schritte)
 
-- Drag-&-Drop-Seiteneditor / Themes
-- Zahlungsabwicklung & Bestellungen (z. B. Stripe)
+- Echtes Drag-&-Drop im Seiteneditor (aktuell ↑/↓-Buttons) / Themes
+- Bestellungen & Warenkorb, Zahlungsabwicklung (z. B. Stripe)
 - Eigene Domains / Subdomains pro Shop
 - Bildupload (aktuell nur Bild-URL)
 - E-Mail-Verifizierung & Passwort-Reset

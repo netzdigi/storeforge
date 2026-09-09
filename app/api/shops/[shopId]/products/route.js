@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { getCurrentUser } from '@/lib/session';
-
-async function getOwnedShop(shopId, userId) {
-  if (!/^\d+$/.test(shopId)) return null;
-  const [shop] = await sql`SELECT id FROM shops WHERE id = ${shopId} AND user_id = ${userId}`;
-  return shop;
-}
+import { getOwnedShop } from '@/lib/shops';
 
 export async function GET(request, { params }) {
   const user = await getCurrentUser();

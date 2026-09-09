@@ -4,6 +4,7 @@ import { sql } from '@/lib/db';
 import { getCurrentUser } from '@/lib/session';
 import AddProductForm from './AddProductForm';
 import ProductList from './ProductList';
+import BlockEditor from './BlockEditor';
 
 export default async function ShopPage({ params }) {
   const { shopId } = await params;
@@ -20,6 +21,11 @@ export default async function ShopPage({ params }) {
     WHERE shop_id = ${shop.id} ORDER BY created_at DESC
   `;
 
+  const blocks = await sql`
+    SELECT id, type, content, position FROM blocks
+    WHERE shop_id = ${shop.id} ORDER BY position ASC
+  `;
+
   return (
     <>
       <div className="dashboard-header">
@@ -32,6 +38,10 @@ export default async function ShopPage({ params }) {
         <Link href="/dashboard" className="btn">← Zurück</Link>
       </div>
 
+      <h2>Seite gestalten</h2>
+      <BlockEditor shopId={shop.id} initialBlocks={blocks} />
+
+      <h2 style={{ marginTop: 48 }}>Produkte</h2>
       <ProductList shopId={shop.id} initialProducts={products} />
 
       <div className="card" style={{ maxWidth: 480 }}>
