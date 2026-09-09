@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 import { BLOCK_TYPES } from '@/lib/blockTypes';
 import { StorefrontBody } from '@/components/StoreBlocks';
 
+const TYPE_ICON = {
+  heading: '🔠',
+  text: '📄',
+  image: '🖼️',
+  products: '🛍️',
+};
+
 function blockLabel(type) {
   return BLOCK_TYPES.find((b) => b.type === type)?.label || type;
 }
@@ -40,24 +47,42 @@ function BlockFields({ type, content, onChange }) {
       </>
     );
   }
-  return <p style={{ color: 'var(--text-muted)' }}>Zeigt die Produktübersicht deines Shops.</p>;
+  return <p style={{ color: 'var(--text-muted)' }}>Zeigt die Produktübersicht deines Shops. Keine Einstellungen nötig.</p>;
 }
 
 export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagline, products }) {
   const router = useRouter();
   const [blocks, setBlocks] = useState(initialBlocks);
-  const [editingId, setEditingId] = useState(null);
-  const [draftContent, setDraftContent] = useState({});
+  const [selectedId, setSelectedId] = useState(initialBlocks[0]?.id ?? null);
+  const [draftContent, setDraftContent] = useState(initialBlocks[0]?.content ?? {});
+  const [adding, setAdding] = useState(false);
   const [newType, setNewType] = useState('heading');
   const [newContent, setNewContent] = useState({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [device, setDevice] = useState('desktop');
 
+  const selectedBlock = blocks.find((b) => b.id === selectedId) || null;
+
   const previewBlocks = useMemo(
-    () => blocks.map((b) => (b.id === editingId ? { ...b, content: draftContent } : b)),
-    [blocks, editingId, draftContent]
+    () => blocks.map((b) => (b.id === selectedId && !adding ? { ...b, content: draftContent } : b)),
+    [blocks, selectedId, draftContent, adding]
   );
+
+  function selectBlock(block) {
+    setAdding(false);
+    setSelectedId(block.id);
+    setDraftContent(block.content);
+    setError('');
+  }
+
+  function startAdd() {
+    setAdding(true);
+    setSelectedId(null);
+    setNewType('heading');
+    setNewContent({});
+    setError('');
+  }
 
   async function reorder(nextBlocks) {
     setBlocks(nextBlocks);
@@ -77,11 +102,6 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
     reorder(next);
   }
 
-  function startEdit(block) {
-    setEditingId(block.id);
-    setDraftContent(block.content);
-  }
-
   async function saveEdit(blockId) {
     setBusy(true);
     setError('');
@@ -97,7 +117,6 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
         return;
       }
       setBlocks((prev) => prev.map((b) => (b.id === blockId ? data.block : b)));
-      setEditingId(null);
       router.refresh();
     } finally {
       setBusy(false);
@@ -110,6 +129,7 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
       const res = await fetch(`/api/shops/${shopId}/blocks/${blockId}`, { method: 'DELETE' });
       if (res.ok) {
         setBlocks((prev) => prev.filter((b) => b.id !== blockId));
+        if (selectedId === blockId) setSelectedId(null);
         router.refresh();
       }
     } finally {
@@ -133,7 +153,9 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
         return;
       }
       setBlocks((prev) => [...prev, data.block]);
-      setNewContent({});
+      setAdding(false);
+      setSelectedId(data.block.id);
+      setDraftContent(data.block.content);
       router.refresh();
     } finally {
       setBusy(false);
@@ -141,95 +163,105 @@ export default function BlockEditor({ shopId, initialBlocks, shopName, shopTagli
   }
 
   return (
-    <div className="builder">
-      <div className="builder-sidebar">
-        {error && <div className="form-error">{error}</div>}
-
-        {blocks.length === 0 ? (
-          <div className="empty-state">
-            Noch keine Inhalte. Ohne eigene Blöcke zeigt deine Storefront automatisch die Produktübersicht.
-          </div>
-        ) : (
-          <div className="product-list">
-            {blocks.map((block, index) => (
-              <div key={block.id} className="product-row" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                  <strong>{blockLabel(block.type)}</strong>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn" disabled={index === 0 || busy} onClick={() => moveBlock(index, -1)}>↑</button>
-                    <button className="btn" disabled={index === blocks.length - 1 || busy} onClick={() => moveBlock(index, 1)}>↓</button>
-                    {editingId === block.id ? (
-                      <>
-                        <button className="btn btn-primary" disabled={busy} onClick={() => saveEdit(block.id)}>Speichern</button>
-                        <button className="btn" disabled={busy} onClick={() => setEditingId(null)}>Abbrechen</button>
-                      </>
-                    ) : (
-                      block.type !== 'products' && (
-                        <button className="btn" disabled={busy} onClick={() => startEdit(block)}>Bearbeiten</button>
-                      )
-                    )}
-                    <button className="btn btn-danger" disabled={busy} onClick={() => deleteBlock(block.id)}>Löschen</button>
-                  </div>
-                </div>
-                {editingId === block.id ? (
-                  <div style={{ marginTop: 12 }}>
-                    <BlockFields type={block.type} content={draftContent} onChange={setDraftContent} />
-                  </div>
-                ) : (
-                  block.type !== 'products' && (
-                    <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', whiteSpace: 'pre-wrap' }}>
-                      {block.type === 'image' ? block.content.url : block.content.text}
-                    </p>
-                  )
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>Block hinzufügen</h2>
-          <form onSubmit={addBlock}>
-            <div className="field">
-              <label>Typ</label>
-              <select
-                value={newType}
-                onChange={(e) => {
-                  setNewType(e.target.value);
-                  setNewContent({});
-                }}
-              >
-                {BLOCK_TYPES.map((bt) => (
-                  <option key={bt.type} value={bt.type}>{bt.label}</option>
-                ))}
-              </select>
-            </div>
-            <BlockFields type={newType} content={newContent} onChange={setNewContent} />
-            <button className="btn btn-primary" type="submit" disabled={busy}>Hinzufügen</button>
-          </form>
+    <div className="builder3">
+      <div className="builder-toolbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <strong style={{ fontSize: '.92rem' }}>{shopName}</strong>
+          <span className="save-status"><span className="dot"></span>Automatisch gespeichert</span>
+        </div>
+        <div className="device-toggle-icons">
+          <button
+            className={device === 'desktop' ? 'icon-btn active' : 'icon-btn'}
+            onClick={() => setDevice('desktop')}
+            title="Desktop-Ansicht"
+          >
+            🖥
+          </button>
+          <button
+            className={device === 'mobile' ? 'icon-btn active' : 'icon-btn'}
+            onClick={() => setDevice('mobile')}
+            title="Mobile-Ansicht"
+          >
+            📱
+          </button>
         </div>
       </div>
 
-      <div className="builder-preview">
-        <div className="preview-toolbar">
-          <button
-            className={device === 'desktop' ? 'device-btn active' : 'device-btn'}
-            onClick={() => setDevice('desktop')}
+      <div className="builder-tree">
+        {blocks.length === 0 && (
+          <p style={{ color: 'var(--text-muted)', fontSize: '.85rem', padding: '4px 6px 12px' }}>
+            Noch keine Blöcke. Ohne eigene Blöcke zeigt deine Storefront automatisch die Produktübersicht.
+          </p>
+        )}
+        {blocks.map((block, index) => (
+          <div
+            key={block.id}
+            className={selectedId === block.id && !adding ? 'tree-row active' : 'tree-row'}
+            onClick={() => selectBlock(block)}
           >
-            🖥 Desktop
-          </button>
-          <button
-            className={device === 'mobile' ? 'device-btn active' : 'device-btn'}
-            onClick={() => setDevice('mobile')}
-          >
-            📱 Mobile
-          </button>
-        </div>
+            <span className="tree-label">
+              <span>{TYPE_ICON[block.type]}</span>
+              {blockLabel(block.type)}
+            </span>
+            <span className="tree-actions" onClick={(e) => e.stopPropagation()}>
+              <button className="tree-action-btn" disabled={index === 0 || busy} onClick={() => moveBlock(index, -1)}>↑</button>
+              <button className="tree-action-btn" disabled={index === blocks.length - 1 || busy} onClick={() => moveBlock(index, 1)}>↓</button>
+            </span>
+          </div>
+        ))}
+        <div className="tree-add" onClick={startAdd}>+ Block hinzufügen</div>
+      </div>
+
+      <div className="builder-center">
         <div className={device === 'mobile' ? 'preview-frame is-mobile' : 'preview-frame'}>
           <div className="preview-scroll">
             <StorefrontBody shopName={shopName} tagline={shopTagline} blocks={previewBlocks} products={products} />
           </div>
         </div>
+      </div>
+
+      <div className="builder-panel">
+        {error && <div className="form-error">{error}</div>}
+
+        {adding ? (
+          <>
+            <h3 style={{ marginTop: 0 }}>Block hinzufügen</h3>
+            <form onSubmit={addBlock}>
+              <div className="field">
+                <label>Typ</label>
+                <select
+                  value={newType}
+                  onChange={(e) => {
+                    setNewType(e.target.value);
+                    setNewContent({});
+                  }}
+                >
+                  {BLOCK_TYPES.map((bt) => (
+                    <option key={bt.type} value={bt.type}>{bt.label}</option>
+                  ))}
+                </select>
+              </div>
+              <BlockFields type={newType} content={newContent} onChange={setNewContent} />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-primary" type="submit" disabled={busy}>Hinzufügen</button>
+                <button className="btn" type="button" disabled={busy} onClick={() => setAdding(false)}>Abbrechen</button>
+              </div>
+            </form>
+          </>
+        ) : selectedBlock ? (
+          <>
+            <h3 style={{ marginTop: 0 }}>{blockLabel(selectedBlock.type)}</h3>
+            <BlockFields type={selectedBlock.type} content={draftContent} onChange={setDraftContent} />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {selectedBlock.type !== 'products' && (
+                <button className="btn btn-primary" disabled={busy} onClick={() => saveEdit(selectedBlock.id)}>Speichern</button>
+              )}
+              <button className="btn btn-danger" disabled={busy} onClick={() => deleteBlock(selectedBlock.id)}>Löschen</button>
+            </div>
+          </>
+        ) : (
+          <p className="builder-panel-empty">Wähle links einen Block aus, um ihn zu bearbeiten.</p>
+        )}
       </div>
     </div>
   );

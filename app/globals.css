@@ -349,52 +349,185 @@ a {
   padding: 32px 0;
 }
 
-.builder {
+.builder3 {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 24px;
-  align-items: start;
+  grid-template-columns: 240px 1fr 320px;
+  grid-template-rows: auto 1fr;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
   margin-bottom: 48px;
 }
 
-.builder-sidebar {
-  position: sticky;
-  top: 24px;
-  min-width: 0;
-}
-
-.builder-preview {
-  min-width: 0;
-}
-
-.preview-toolbar {
+.builder-toolbar {
+  grid-column: 1 / -1;
   display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.device-btn {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
   background: var(--bg-elevated);
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  cursor: pointer;
+  border-bottom: 1px solid var(--border);
 }
 
-.device-btn.active {
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.save-status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.device-toggle-icons {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn.active {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
 }
 
-.preview-frame {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+.builder-tree {
+  background: var(--bg-elevated);
+  border-right: 1px solid var(--border);
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 720px;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.86rem;
+}
+
+.tree-row:hover {
   background: var(--bg);
+}
+
+.tree-row.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tree-row .tree-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.tree-row .tree-actions {
+  display: flex;
+  gap: 4px;
+  flex: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.tree-row:hover .tree-actions,
+.tree-row.active .tree-actions {
+  opacity: 1;
+}
+
+.tree-action-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.tree-row.active .tree-action-btn {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.tree-action-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tree-add {
+  margin-top: 6px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.tree-add:hover {
+  background: var(--bg);
+}
+
+.builder-center {
+  background: var(--bg);
+  overflow-y: auto;
+  max-height: 720px;
+}
+
+.builder-panel {
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--border);
+  padding: 18px;
+  overflow-y: auto;
+  max-height: 720px;
+}
+
+.builder-panel h3 {
+  font-size: 1rem;
+}
+
+.builder-panel-empty {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.preview-frame {
+  border: none;
+  background: var(--bg);
   transition: max-width 0.2s ease;
 }
 
@@ -406,17 +539,28 @@ a {
 .preview-frame.is-mobile {
   max-width: 390px;
   margin: 0 auto;
-  border-radius: 24px;
-  border: 6px solid var(--bg-elevated);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
 }
 
 @media (max-width: 900px) {
-  .builder {
+  .builder3 {
     grid-template-columns: 1fr;
   }
 
-  .builder-sidebar {
-    position: static;
+  .builder-tree,
+  .builder-panel {
+    border: none;
+    border-top: 1px solid var(--border);
+    max-height: none;
+  }
+
+  .builder-center {
+    max-height: none;
+  }
+
+  .preview-scroll {
+    max-height: none;
   }
 }
 
