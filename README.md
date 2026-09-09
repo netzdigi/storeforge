@@ -14,10 +14,12 @@ Website-Baukasten.
   Unterseiten (eigene URL, eigene Blöcke), mit automatischer Navigation
   auf der Storefront sobald mehr als eine Seite existiert
 - Shopify-artiger Seiten-Editor (Werkzeugleiste, Block-Liste, Live-Vorschau
-  mit Desktop/Mobile-Umschalter, Eigenschaften-Panel) mit 13 Blocktypen:
+  mit Desktop/Mobile-Umschalter, Eigenschaften-Panel) mit 18 Blocktypen:
   Überschrift, Text, Bild, Hero-Bereich, Button/CTA, Bildergalerie,
-  Feature-Grid, Testimonials, FAQ, Social-Media-Links, Kontaktformular,
-  Newsletter-Anmeldung, Produktübersicht (nur für Shops)
+  Feature-Grid, Countdown-Timer, Kennzahlen-Leiste, Preistabelle,
+  Vorher-Nachher-Slider, Sticky-CTA-Leiste, Testimonials, FAQ,
+  Social-Media-Links, Kontaktformular, Newsletter-Anmeldung,
+  Produktübersicht (nur für Shops)
 - Kontaktformular- und Newsletter-Block sind echt: Einsendungen landen in
   der Datenbank und erscheinen im „Posteingang" auf der Projektseite im
   Dashboard

@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import ContactFormBlock from './ContactFormBlock';
 import NewsletterBlock from './NewsletterBlock';
+import CountdownBlock from './CountdownBlock';
+import BeforeAfterBlock from './BeforeAfterBlock';
+import StickyCtaBlock from './StickyCtaBlock';
 
 export function formatPrice(cents) {
   return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
@@ -104,6 +107,61 @@ export function StoreBlock({ block, products, shopId }) {
         </div>
       </div>
     );
+  }
+  if (block.type === 'countdown') {
+    return <CountdownBlock {...block.content} />;
+  }
+  if (block.type === 'stats') {
+    const items = block.content.items || [];
+    if (items.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="stats-grid">
+          {items.map((item, i) => (
+            <div key={i} className="stat-item">
+              <div className="stat-value">{item.value}</div>
+              <div className="stat-label">{item.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (block.type === 'pricing') {
+    const plans = block.content.plans || [];
+    if (plans.length === 0) return null;
+    return (
+      <div className="container block-section">
+        <div className="pricing-grid">
+          {plans.map((plan, i) => (
+            <div key={i} className={plan.highlighted ? 'pricing-card highlighted' : 'pricing-card'}>
+              {plan.highlighted && <div className="pricing-badge">Beliebt</div>}
+              <h3>{plan.name}</h3>
+              <div className="pricing-price">
+                {plan.price}
+                {plan.period && <span>{plan.period}</span>}
+              </div>
+              <ul className="pricing-features">
+                {(plan.features || '')
+                  .split('\n')
+                  .map((f) => f.trim())
+                  .filter(Boolean)
+                  .map((f, j) => <li key={j}>{f}</li>)}
+              </ul>
+              {plan.buttonLabel && plan.buttonUrl && (
+                <a href={plan.buttonUrl} className="btn btn-primary" style={{ width: '100%' }}>{plan.buttonLabel}</a>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (block.type === 'before_after') {
+    return <BeforeAfterBlock {...block.content} />;
+  }
+  if (block.type === 'sticky_cta') {
+    return <StickyCtaBlock {...block.content} />;
   }
   if (block.type === 'testimonials') {
     const items = block.content.items || [];

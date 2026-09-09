@@ -13,6 +13,11 @@ const TYPE_ICON = {
   button: '🔘',
   gallery: '🖼️',
   features: '▦',
+  countdown: '⏰',
+  stats: '📊',
+  pricing: '💳',
+  before_after: '🔀',
+  sticky_cta: '📌',
   testimonials: '💬',
   faq: '❓',
   social: '🔗',
@@ -179,6 +184,154 @@ function BlockFields({ type, content, onChange }) {
           )}
         />
       </div>
+    );
+  }
+  if (type === 'countdown') {
+    return (
+      <>
+        <div className="field">
+          <label>Überschrift (optional)</label>
+          <input value={content.heading || ''} onChange={(e) => onChange({ ...content, heading: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Ablaufdatum &amp; -zeit</label>
+          <input
+            type="datetime-local"
+            value={content.deadline || ''}
+            onChange={(e) => onChange({ ...content, deadline: e.target.value })}
+          />
+        </div>
+        <div className="field">
+          <label>Button-Text (optional)</label>
+          <input value={content.buttonLabel || ''} onChange={(e) => onChange({ ...content, buttonLabel: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Link (optional)</label>
+          <input value={content.buttonUrl || ''} onChange={(e) => onChange({ ...content, buttonUrl: e.target.value })} />
+        </div>
+      </>
+    );
+  }
+  if (type === 'stats') {
+    const items = content.items || [];
+    return (
+      <div className="field">
+        <label>Kennzahlen</label>
+        <RepeatEditor
+          items={items}
+          onChange={(items) => onChange({ items })}
+          addLabel="+ Kennzahl hinzufügen"
+          emptyItem={{ value: '', label: '' }}
+          max={6}
+          renderFields={(item, update) => (
+            <>
+              <div className="field">
+                <label>Wert (z. B. 500+)</label>
+                <input value={item.value || ''} onChange={(e) => update({ ...item, value: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Beschriftung</label>
+                <input value={item.label || ''} onChange={(e) => update({ ...item, label: e.target.value })} />
+              </div>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
+  if (type === 'pricing') {
+    const plans = content.plans || [];
+    return (
+      <div className="field">
+        <label>Preispläne</label>
+        <RepeatEditor
+          items={plans}
+          onChange={(plans) => onChange({ plans })}
+          addLabel="+ Plan hinzufügen"
+          emptyItem={{ name: '', price: '', period: '', features: '', buttonLabel: '', buttonUrl: '', highlighted: false }}
+          max={4}
+          renderFields={(plan, update) => (
+            <>
+              <div className="field">
+                <label>Name</label>
+                <input value={plan.name || ''} onChange={(e) => update({ ...plan, name: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Preis (z. B. 29€)</label>
+                <input value={plan.price || ''} onChange={(e) => update({ ...plan, price: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Zeitraum (optional, z. B. /Monat)</label>
+                <input value={plan.period || ''} onChange={(e) => update({ ...plan, period: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Merkmale (eine Zeile pro Merkmal)</label>
+                <textarea value={plan.features || ''} onChange={(e) => update({ ...plan, features: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Button-Text</label>
+                <input value={plan.buttonLabel || ''} onChange={(e) => update({ ...plan, buttonLabel: e.target.value })} />
+              </div>
+              <div className="field">
+                <label>Button-Link</label>
+                <input value={plan.buttonUrl || ''} onChange={(e) => update({ ...plan, buttonUrl: e.target.value })} />
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '.85rem', color: 'var(--text-muted)' }}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(plan.highlighted)}
+                  onChange={(e) => update({ ...plan, highlighted: e.target.checked })}
+                  style={{ width: 'auto' }}
+                />
+                Als „Beliebt" hervorheben
+              </label>
+            </>
+          )}
+        />
+      </div>
+    );
+  }
+  if (type === 'before_after') {
+    return (
+      <>
+        <div className="field">
+          <label>Bild-URL „Vorher"</label>
+          <input value={content.beforeUrl || ''} onChange={(e) => onChange({ ...content, beforeUrl: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Beschriftung „Vorher"</label>
+          <input value={content.beforeLabel || ''} onChange={(e) => onChange({ ...content, beforeLabel: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Bild-URL „Nachher"</label>
+          <input value={content.afterUrl || ''} onChange={(e) => onChange({ ...content, afterUrl: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Beschriftung „Nachher"</label>
+          <input value={content.afterLabel || ''} onChange={(e) => onChange({ ...content, afterLabel: e.target.value })} />
+        </div>
+      </>
+    );
+  }
+  if (type === 'sticky_cta') {
+    return (
+      <>
+        <div className="field">
+          <label>Text (optional)</label>
+          <input value={content.text || ''} onChange={(e) => onChange({ ...content, text: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Text</label>
+          <input value={content.buttonLabel || ''} onChange={(e) => onChange({ ...content, buttonLabel: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Button-Link</label>
+          <input value={content.buttonUrl || ''} onChange={(e) => onChange({ ...content, buttonUrl: e.target.value })} />
+        </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '.82rem' }}>
+          Bleibt beim Scrollen am unteren Bildschirmrand sichtbar.
+        </p>
+      </>
     );
   }
   if (type === 'testimonials') {
