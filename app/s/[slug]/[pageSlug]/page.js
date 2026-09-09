@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { sql } from '@/lib/db';
 import { StorefrontBody } from '@/components/StoreBlocks';
+import { recordPageView } from '@/lib/tracking';
 
 export async function generateMetadata({ params }) {
   const { slug, pageSlug } = await params;
@@ -22,6 +23,8 @@ export default async function StorefrontSubPage({ params }) {
     SELECT id FROM pages WHERE shop_id = ${shop.id} AND slug = ${pageSlug} AND is_home = false
   `;
   if (!page) notFound();
+
+  await recordPageView(shop.id, page.id);
 
   const [products, blocks, pages] = await Promise.all([
     shop.type === 'shop'

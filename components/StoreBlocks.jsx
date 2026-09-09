@@ -4,12 +4,13 @@ import NewsletterBlock from './NewsletterBlock';
 import CountdownBlock from './CountdownBlock';
 import BeforeAfterBlock from './BeforeAfterBlock';
 import StickyCtaBlock from './StickyCtaBlock';
+import OrderButton from './OrderButton';
 
 export function formatPrice(cents) {
   return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 }
 
-export function ProductGrid({ products }) {
+export function ProductGrid({ products, shopId }) {
   if (products.length === 0) {
     return <div className="empty-state">Dieser Shop hat noch keine Produkte.</div>;
   }
@@ -22,6 +23,7 @@ export function ProductGrid({ products }) {
             <h3>{product.name}</h3>
             {product.description && <p>{product.description}</p>}
             <div className="price">{formatPrice(product.price_cents)}</div>
+            <OrderButton shopId={shopId} productId={product.id} />
           </div>
         </div>
       ))}
@@ -222,7 +224,7 @@ export function StoreBlock({ block, products, shopId }) {
   if (block.type === 'products') {
     return (
       <div className="container">
-        <ProductGrid products={products} />
+        <ProductGrid products={products} shopId={shopId} />
       </div>
     );
   }
@@ -258,7 +260,7 @@ export function StorefrontBody({ shopId, shopName, tagline, shopSlug, pages, cur
 
       {blocks.length === 0 ? (
         <div className="container">
-          <ProductGrid products={products} />
+          <ProductGrid products={products} shopId={shopId} />
         </div>
       ) : (
         blocks.map((block) => <StoreBlock key={block.id} block={block} products={products} shopId={shopId} />)

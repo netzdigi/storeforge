@@ -28,6 +28,11 @@ Website-Baukasten.
   beim Hinzufügen eines Blocks (Prompt → passender Blocktyp + Inhalt werden
   vorausgefüllt, vor dem Speichern noch bearbeitbar). Braucht `ANTHROPIC_API_KEY`.
 - Produkte pro Shop verwalten (anlegen, auflisten, löschen)
+- Bestellungen (ohne Zahlungsanbieter): Kunden bestellen direkt auf der
+  Produktkarte (Name/E-Mail/Menge), die Bestellung landet in der Datenbank
+- Statistiken-Dashboard pro Projekt (`📊 Statistiken`): Seitenaufrufe,
+  Bestellungen und Umsatz je als Kennzahl mit 14-Tage-Verlauf, plus Liste
+  der letzten Bestellungen
 - Öffentliche Storefront unter `/s/<slug>` (und `/s/<slug>/<seite>` für
   Unterseiten) für jedes Projekt
 - Geschütztes Dashboard unter `/dashboard`
@@ -36,7 +41,8 @@ Website-Baukasten.
 
 - KI-Bildgenerierung (Anbieter noch offen)
 - Echtes Drag-&-Drop im Seiteneditor (aktuell ↑/↓-Buttons) / Themes
-- Bestellungen & Warenkorb, Zahlungsabwicklung (z. B. Stripe)
+- Echte Zahlungsabwicklung (z. B. Stripe) – Bestellungen werden aktuell
+  ohne Bezahlung erfasst
 - Eigene Domains / Subdomains pro Projekt
 - Bildupload (aktuell nur Bild-URL)
 - E-Mail-Verifizierung & Passwort-Reset
@@ -52,7 +58,8 @@ Website-Baukasten.
 2. Datenbankschema anlegen: Inhalt von `schema.sql` gegen die Datenbank ausführen.
    Bei einer bereits bestehenden Datenbank die Dateien in `migrations/`
    der Reihe nach ausführen (0001 für Single-Page → Mehrseiten-Umstellung,
-   0002 für Kontaktformular/Newsletter-Speicherung).
+   0002 für Kontaktformular/Newsletter-Speicherung, 0003 für
+   Bestellungen/Seitenaufruf-Tracking).
 3. Abhängigkeiten installieren: `npm install`
 4. Dev-Server starten: `npm run dev`
 

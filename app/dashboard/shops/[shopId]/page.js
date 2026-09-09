@@ -64,7 +64,10 @@ export default async function ShopPage({ params, searchParams }) {
             /s/{shop.slug} ↗
           </Link>
         </div>
-        <Link href="/dashboard" className="btn">← Zurück</Link>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Link href={`/dashboard/shops/${shop.id}/analytics`} className="btn">📊 Statistiken</Link>
+          <Link href="/dashboard" className="btn">← Zurück</Link>
+        </div>
       </div>
 
       <h2>Seite gestalten</h2>
