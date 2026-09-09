@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="card" style={{ maxWidth: 480 }}>
+      <div id="neues-projekt" className="card" style={{ maxWidth: 480, scrollMarginTop: 24 }}>
         <h2 style={{ marginTop: 0 }}>Neues Projekt erstellen</h2>
         <CreateShopForm />
       </div>
